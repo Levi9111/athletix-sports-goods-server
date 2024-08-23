@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, model } from 'mongoose';
 import { ProductModel, TProduct } from './product.interface';
 
 const productSchema = new Schema<TProduct, ProductModel>(
@@ -54,9 +54,6 @@ productSchema.statics.isProductExistsByCustomId = async function (id: string) {
   return await Product.findOne({ id });
 };
 
-const Product = mongoose.model<TProduct, ProductModel>(
-  'Product',
-  productSchema,
-);
+const Product = model<TProduct, ProductModel>('Product', productSchema);
 
 export default Product;

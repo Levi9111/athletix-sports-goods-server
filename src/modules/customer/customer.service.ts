@@ -31,8 +31,8 @@ const deleteCustomerFromDB = async (id: string) => {
 
   try {
     session.startTransaction();
-    const deletedCustomer = await Customer.findByIdAndUpdate(
-      id,
+    const deletedCustomer = await Customer.findOneAndUpdate(
+      { id },
       {
         isDeleted: true,
       },
