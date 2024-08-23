@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import notFound from './middlewares/notFound';
 import router from './routes';
+import globalErrorHandler from './middlewares/globalErrorHandler';
 
 const app: Application = express();
 
@@ -15,6 +16,8 @@ const serverStarterPage = async (req: Request, res: Response) => {
 };
 
 app.get('/', serverStarterPage);
+
+app.use(globalErrorHandler);
 
 app.use(notFound);
 

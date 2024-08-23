@@ -3,13 +3,37 @@ import { AppError } from '../../app/errors/AppError';
 import { TCustomer } from '../customer/customer.interface';
 import { TUser } from './user.interface';
 import mongoose from 'mongoose';
-import { generateCustomerId } from './user.utils';
+import { generateAdminId, generateCustomerId } from './user.utils';
 import { User } from './user.model';
 import { Customer } from '../customer/customer.model';
-
-const createAdminIntoDB = async () => {};
+import { TAdmin } from '../admin/admin.interface';
+import { Admin } from '../admin/admin.model';
 
 const createSuperAdminIntoDB = async () => {};
+
+const createAdminIntoDB = async (password: string, payload: TAdmin) => {
+  const userData: Partial<TUser> = {};
+
+  if (!password) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Password not found');
+  }
+
+  userData.password = password;
+  userData.role = 'admin';
+
+  userData.id = await generateAdminId();
+  const newUser = await User.create(userData);
+  if (!newUser) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create new user');
+  }
+
+  payload.id = newUser.id;
+  payload.user = newUser._id;
+
+  const newAdminData = await Admin.create(payload);
+
+  return newAdminData;
+};
 
 const createCustomerIntoDB = async (password: string, payload: TCustomer) => {
   const userData: Partial<TUser> = {};
@@ -19,39 +43,23 @@ const createCustomerIntoDB = async (password: string, payload: TCustomer) => {
   userData.password = password;
   userData.role = 'customer';
 
-  const session = await mongoose.startSession();
+  userData.id = await generateCustomerId();
+  const newUser = await User.create(userData);
 
-  try {
-    session.startTransaction();
-
-    userData.id = await generateCustomerId();
-    console.log(userData.id);
-    const newUser = await User.create([userData], { session });
-    console.log({ password, payload, userData });
-
-    if (!newUser.length) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create new user');
-    }
-
-    payload.id = newUser[0].id;
-    payload.user = newUser[0]._id;
-
-    const newCustomerData = await Customer.create([payload], { session });
-
-    if (!newCustomerData.length) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        'Failed to create new customer',
-      );
-    }
-
-    await session.commitTransaction();
-    await session.endSession();
-    return newCustomerData;
-  } catch (error: any) {
-    await session.abortTransaction();
-    await session.endSession();
+  if (!newUser) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create new user');
   }
+
+  payload.id = newUser.id;
+  payload.user = newUser._id;
+
+  const newCustomerData = await Customer.create(payload);
+
+  if (!newCustomerData) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create new customer');
+  }
+
+  return newCustomerData;
 };
 
 export const UserServices = {
