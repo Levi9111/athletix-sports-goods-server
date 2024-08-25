@@ -12,6 +12,6 @@ export interface TProduct {
   features: string[];
 }
 
-export interface ProductModel extends Model<TProduct> {
-  iProductExistsByCustomId(id: string): Promise<TProduct>;
-}
+// export interface ProductModel extends Model<TProduct> {
+//   iProductExistsById(id: string): Promise<TProduct>;
+// }

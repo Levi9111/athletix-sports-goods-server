@@ -2,7 +2,6 @@ import httpStatus from 'http-status';
 import { AppError } from '../../app/errors/AppError';
 import { TCustomer } from '../customer/customer.interface';
 import { TUser } from './user.interface';
-import mongoose from 'mongoose';
 import { generateAdminId, generateCustomerId } from './user.utils';
 import { User } from './user.model';
 import { Customer } from '../customer/customer.model';

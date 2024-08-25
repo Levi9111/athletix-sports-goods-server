@@ -4,6 +4,7 @@ import { TProduct } from './product.interface';
 import Product from './product.model';
 import { AppError } from '../../app/errors/AppError';
 import httpStatus from 'http-status';
+import { generateCustomProductId } from './product.utils';
 
 const getAllProductsFromDB = async (query: Record<string, unknown>) => {
   const productQuery = new QueryBuilder(Product.find(), query)
@@ -18,15 +19,15 @@ const getAllProductsFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleProductFromDB = async (id: string) => {
-  const result = await Product.findOne({ id });
+  const result = await Product.findById(id);
 
   return result;
 };
 
 const createProductIntoDB = async (payload: TProduct) => {
-  // create custom generated id
-  // const result = await Product.create(payload);
-  // return result;
+  payload.id = generateCustomProductId();
+  const result = await Product.create(payload);
+  return result;
 };
 
 const updateProductIntoDB = async (id: string, payload: Partial<TProduct>) => {
@@ -52,7 +53,7 @@ const updateProductIntoDB = async (id: string, payload: Partial<TProduct>) => {
   modifiedData.image = image;
   modifiedData.features = features;
 
-  const result = await Product.findOneAndUpdate({ id }, modifiedData, {
+  const result = await Product.findByIdAndUpdate(id, modifiedData, {
     new: true,
     runValidators: true,
   });
@@ -65,8 +66,8 @@ const deleteProductFromDB = async (id: string) => {
 
   try {
     session.startTransaction();
-    const deletedProduct = await Product.findOneAndUpdate(
-      { id },
+    const deletedProduct = await Product.findByIdAndUpdate(
+      id,
       {
         isDeleted: true,
       },

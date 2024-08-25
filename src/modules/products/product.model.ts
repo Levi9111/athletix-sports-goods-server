@@ -1,16 +1,11 @@
-import mongoose, { Document, Schema, model } from 'mongoose';
-import { ProductModel, TProduct } from './product.interface';
+import { Schema, model } from 'mongoose';
+import { TProduct } from './product.interface';
 
-const productSchema = new Schema<TProduct, ProductModel>(
+const productSchema = new Schema<TProduct>(
   {
-    id: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    id: { type: String, required: [true, 'Id is required'], unique: true },
     name: {
       type: String,
-      maxlength: 18,
     },
     description: {
       type: String,
@@ -50,10 +45,10 @@ const productSchema = new Schema<TProduct, ProductModel>(
   },
 );
 
-productSchema.statics.isProductExistsByCustomId = async function (id: string) {
-  return await Product.findOne({ id });
-};
+// productSchema.statics.isProductExistsById = async function (id: string) {
+//   return await Product.findById(id);
+// };
 
-const Product = model<TProduct, ProductModel>('Product', productSchema);
+const Product = model<TProduct>('Product', productSchema);
 
 export default Product;
